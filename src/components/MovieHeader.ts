@@ -65,7 +65,6 @@ export default class MovieHeader extends EventComponent {
       $searchInput?.focus();
       return;
     }
-
     const searchQuery = $form?.["search-query"].value;
 
     if (!searchQuery) {
