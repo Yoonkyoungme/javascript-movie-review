@@ -62,6 +62,7 @@ export default class MovieHeader extends EventComponent {
 
     if ($searchInput?.classList.contains("hidden")) {
       $searchInput?.classList.remove("hidden");
+      $searchInput?.focus();
       return;
     }
 
