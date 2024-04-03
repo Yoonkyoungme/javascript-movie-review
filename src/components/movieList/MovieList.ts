@@ -64,25 +64,22 @@ export default class MovieList extends EventComponent {
   protected getTemplate(): HTMLTemplate {
     const movieItemsTemplate = generateMovieItems(this.movieList);
     return `
-        <ul id="item-list" class="item-list">
+      <ul id="item-list" class="item-list">
         ${
           this.movieList.results.length === 0
             ? generateEmptyMovieListScreen()
             : movieItemsTemplate
         }
-        </ul>
+      </ul>
     `;
   }
 
   protected setEvent(): void {
-    window.addEventListener("scroll", throttle(this.onScroll.bind(this), 500));
-    $(this.targetId)?.addEventListener(
-      "click",
-      this.openMovieDetailModal.bind(this)
-    );
+    window.addEventListener("scroll", throttle(this.onScroll, 500));
+    $(this.targetId)?.addEventListener("click", this.openMovieDetailModal);
   }
 
-  private onScroll() {
+  private onScroll = () => {
     const isEndOfPage =
       window.innerHeight + window.scrollY >=
       document.documentElement.scrollHeight;
@@ -91,9 +88,9 @@ export default class MovieList extends EventComponent {
     if (!isEndOfPage || !hasMorePages) return;
 
     this.loadMoreMovies();
-  }
+  };
 
-  private openMovieDetailModal(event: Event): void {
+  private openMovieDetailModal = (event: Event): void => {
     event.preventDefault();
     const target = event.target;
 
@@ -102,29 +99,28 @@ export default class MovieList extends EventComponent {
 
       if (clickedMovieId) {
         this.movieState.set(Number(clickedMovieId));
-        console.log("movieState", this.movieState.get());
-        $<HTMLElement>("movie-detail-modal")?.classList.remove("modal");
-        $<HTMLElement>("movie-detail-modal")?.classList.add("modal-open");
+        document.body.classList.add("no-scroll");
+        $<HTMLElement>("movie-detail-modal")?.classList.toggle("modal-open");
       }
     }
-  }
+  };
 
-  private async fetchMovies(
+  private fetchMovies = async (
     page: number,
     query?: Query
-  ): Promise<FetchedMovieData> {
+  ): Promise<FetchedMovieData> => {
     const fetchedMovieData = query
       ? await getSearchMovieList(query, page)
       : await getPopularMovieList(page);
 
     return fetchedMovieData;
-  }
+  };
 
   private resetPage(): void {
     this.page = 1;
   }
 
-  private async loadMoreMovies() {
+  private loadMoreMovies = async () => {
     this.page += 1;
 
     this.skeletonUI.insert("item-list", "afterend");
@@ -137,11 +133,11 @@ export default class MovieList extends EventComponent {
     this.skeletonUI.remove("skeleton-movie-item-list");
 
     this.insertMovieItems(additionalFetchedMovieData);
-  }
+  };
 
-  private async insertMovieItems(data: FetchedMovieData): Promise<void> {
+  private insertMovieItems = async (data: FetchedMovieData): Promise<void> => {
     const movieItemsTemplate = generateMovieItems(data);
 
     $("item-list")?.insertAdjacentHTML("beforeend", movieItemsTemplate);
-  }
+  };
 }

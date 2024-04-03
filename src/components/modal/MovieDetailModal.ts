@@ -40,7 +40,9 @@ export default class MovieDetailModal extends BaseModal {
 
   protected getModalContent(): HTMLTemplate {
     const starRating = storage.get<Record<number, number>>("starRating") ?? {};
-    const rating = starRating[this.movieState.get() as number] ?? 0;
+
+    const movieId = this.movieState.get();
+    const rating = typeof movieId === "number" ? starRating[movieId] ?? 0 : 0;
 
     return generateMovieDetailModal(this.movieDetail, rating);
   }
@@ -51,14 +53,11 @@ export default class MovieDetailModal extends BaseModal {
     const $closeButton = $<HTMLElement>("close-button");
     const $starRatingContainer = $<HTMLElement>("star-rating-container");
 
-    $closeButton?.addEventListener("click", this.closeModal.bind(this));
-    $starRatingContainer?.addEventListener(
-      "click",
-      this.onStarRatingClick.bind(this)
-    );
+    $closeButton?.addEventListener("click", this.closeModal);
+    $starRatingContainer?.addEventListener("click", this.onStarRatingClick);
   }
 
-  private onStarRatingClick(event: Event): void {
+  private onStarRatingClick = (event: Event): void => {
     const target = event.target as HTMLElement;
     const starRatingIndex = target.dataset.index;
 
@@ -66,7 +65,7 @@ export default class MovieDetailModal extends BaseModal {
       const rating = Number(starRatingIndex);
       this.updateStarRating(this.movieState.get() as number, rating);
     }
-  }
+  };
 
   private updateStarRating(movieId: number, rating: number): void {
     const starRating = storage.get<Record<number, number>>("starRating") ?? {};
@@ -79,12 +78,11 @@ export default class MovieDetailModal extends BaseModal {
   private updateStarRatingUI(rating: number): void {
     const $starRatingContainer = $<HTMLElement>("star-rating-container");
     if (!$starRatingContainer) return;
-    const newStarRatingHTML = generateStarRating(rating);
-    $starRatingContainer.innerHTML = newStarRatingHTML;
+    $starRatingContainer.innerHTML = generateStarRating(rating);
   }
 
-  private async fetchMovieDetail(params: number | null) {
+  private fetchMovieDetail = async (params: number | null) => {
     const fetchedData = await getMovieDetail(params);
     return fetchedData;
-  }
+  };
 }
